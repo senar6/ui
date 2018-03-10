@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>CitiChat</title>
+	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+		<title>POC Chat</title>
 		<meta charset="UTF-8"/>
 		<meta name="referrer" content="no-referrer"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -1173,9 +1174,35 @@ var CitiChatService = (function() {
 	var messageId = "";
 	var send = function(id, message, autoMessageType) {
 		var textBoxValue = htmlEncode(textinputElement.value.trim());
-		if(textBoxValue == "") return;
-		displayMessage(id, "append", {"messageText": "Hello"});
-		displayMessage(id, "append", {"messageText": textBoxValue}, "my", true, messageId);
+		var urlpost = "http://localhost:3002/javainuse-rabbitmq/producer";
+        var param = {};
+        param.empName = "Senthil";
+        param.empId = "1234";
+        var ack_param = JSON.stringify(param);
+        if(textBoxValue == "") return;
+		console.log("URL:"+urlpost);
+		console.log("Param:"+ack_param);
+		var request = $.ajax({
+			  url: urlpost,
+			  type: "POST",
+			  data: ack_param,
+		      dataType: "text",
+			});
+
+			request.done(function(msg) {
+		    displayMessage(id, "append", {"messageText": "Hello"});
+		     displayMessage(id, "append", {"messageText": textBoxValue}, "my", true, messageId);
+			  alert("Success");
+			});
+
+			request.fail(function(response,jqXHR, textStatus) {
+			displayMessage(id, "append", {"messageText": textStatus});
+			displayMessage(id, "append", {"messageText": textBoxValue}, "my", true, messageId);
+			 alert( "Request failed: " + textStatus );
+			});
+		
+	//	displayMessage(id, "append", {"messageText": "Hello"});
+	//	displayMessage(id, "append", {"messageText": textBoxValue}, "my", true, messageId);
 		textinputElement.value = "";
 		sendbtnElement.style.display = "none";
 		chatfooterElement.style.height = "70px";
